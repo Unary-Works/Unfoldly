@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* Additional custom styles if needed */
+
+/* 聊天「相关文件」折叠：不依赖 Tailwind group-open（CDN 可能不生成），用原生 details[open] */
+details.rf-details:not([open]) .rf-expanded-panel {
+  display: none;
+}
+details.rf-details[open] .rf-collapsed-panel {
+  display: none;
+}
+details.rf-details:not([open]) .rf-collapse-label {
+  display: none;
+}
+details.rf-details[open] .rf-expand-label {
+  display: none;
+}
+
+.chat-break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.chat-markdown {
+  overflow-wrap: anywhere;
+}
+
+.chat-markdown p,
+.chat-markdown li,
+.chat-markdown td,
+.chat-markdown th,
+.chat-markdown a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.chat-markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.chat-markdown pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.chat-markdown img,
+.chat-markdown video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 全局禁用文本选中，使得桌面应用体感更原生 */
+body, html {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 允许输入框选中 */
+input, textarea {
+  -webkit-user-select: auto;
+  user-select: auto;
+}

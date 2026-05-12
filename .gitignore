@@ -1,0 +1,63 @@
+macos_bundle/release/
+macos_bundle/python_runtime/
+macos_bundle/cache/
+macos_bundle/ffmpeg/
+
+# macOS
+.DS_Store
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# PyInstaller
+build/
+dist/
+
+# Release artifacts
+*.dmg
+*.app.tar.gz
+*.app.tar.gz.sig
+latest.json
+
+# Runtime state (do not commit)
+data/*
+!data/.gitkeep
+!data/README.md
+chroma_db/
+db/*
+local_models/
+*.log
+logs/
+
+# Local ML weights / model cache (large binaries)
+models/
+
+# setuptools / editable install metadata
+*.egg-info/
+
+# Agent debug log (local only)
+agent_log.txt
+
+# User data — must NOT be committed (contains personal file paths & chat history)
+chat_history.json
+sources.json
+index_ignore_cache.json
+
+# Parse Cache DB (runtime, user-specific)
+parse_cache.db
+**/parse_cache.db
+
+# Tauri build artifacts
+apps/desktop/src-tauri/target/
+.dummy_pkgs/
+macos_bundle/build_log.txt
+build_test.log
+build_jamepeng.log

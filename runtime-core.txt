@@ -1,0 +1,43 @@
+# Embedded Python runtime dependencies.
+#
+# `prepare_bundled_python.sh` installs this file into
+# `macos_bundle/python_runtime/site`. Source-built native packages are handled
+# later in the same script:
+# - llama-cpp-python is built from the pinned JamePeng fork commit.
+# - pywhispercpp is rebuilt from source with Metal enabled and CoreML disabled.
+
+# Core clients
+openai
+httpx
+requests
+
+# Agent framework
+langgraph
+langchain
+langchain-core
+langchain-openai
+
+# Local indexing and retrieval
+chromadb
+rank_bm25
+jieba
+pypinyin
+watchdog
+
+# File parsers
+docx2txt
+python-pptx
+lxml
+pypdf
+pypdfium2
+openpyxl
+xlrd
+numbers-parser>=4.16.3,<4.18
+pillow
+
+# Model and asset downloads
+modelscope
+huggingface_hub
+
+# Audio runtime
+pywhispercpp

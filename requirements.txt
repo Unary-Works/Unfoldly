@@ -1,0 +1,27 @@
+# Local development dependencies.
+#
+# This file is the superset used by `scripts/start-dev.sh`, the optional
+# FastAPI/uvicorn backend, and local debugging. The packaged macOS runtime does
+# not install from this file; see `runtime-core.txt` and
+# `requirements-bundle.txt` below.
+
+-r runtime-core.txt
+
+# Local GGUF LLM runtime for development.
+#
+# The macOS package builds the pinned JamePeng fork commit listed in
+# `THIRD_PARTY_NOTICES.md`, so this PyPI dependency is for local development
+# environments only.
+llama-cpp-python>=0.3.30
+
+# Optional local HTTP API server.
+fastapi
+uvicorn
+
+# Development-only compatibility helpers.
+#
+# The bundled runtime prunes langchain_community and does not depend on it.
+# faster-whisper is a fallback ASR engine when pywhispercpp is unavailable
+# during local development; packaged macOS builds use pywhispercpp.
+langchain-community
+faster-whisper>=1.0.0

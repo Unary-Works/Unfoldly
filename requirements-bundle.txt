@@ -1,0 +1,43 @@
+# Packaging bootstrap dependencies.
+#
+# `package_tauri.sh` installs this file into the temporary project `.venv`
+# used for Tauri/PyO3 build-time linking. The final embedded Python runtime is
+# prepared from `runtime-core.txt` by `prepare_bundled_python.sh`.
+#
+# Keep this list small:
+# - no FastAPI/uvicorn; packaged Tauri calls `backend_core` in-process;
+# - no llama-cpp-python; the pinned JamePeng fork is source-built separately;
+# - no pywhispercpp; the Metal/CoreML-disabled build is source-built separately.
+
+# Core clients
+openai
+httpx
+requests
+
+# Agent framework
+langgraph
+langchain
+langchain-core
+langchain-openai
+
+# Local indexing and retrieval
+chromadb
+rank_bm25
+jieba
+pypinyin
+watchdog
+
+# File parsers
+docx2txt
+python-pptx
+lxml
+pypdf
+pypdfium2
+openpyxl
+xlrd
+numbers-parser>=4.16.3,<4.18
+pillow
+
+# Model and asset downloads
+modelscope
+huggingface_hub

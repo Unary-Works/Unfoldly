@@ -1,0 +1,5 @@
+{
+  "name": "unfoldly",
+  "description": "A Notion-style macOS desktop assistant for local file indexing and chat.",
+  "requestFramePermissions": []
+}

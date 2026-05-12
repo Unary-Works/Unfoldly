@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unfoldly</title>
+    <!-- Fonts are loaded offline instead of from the former Google Fonts CDN. -->
+    <link rel="stylesheet" href="/fonts.css">
+    <style>
+      html, body, #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: 'Manrope', sans-serif;
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        background-color: #ffffff;
+        overflow: hidden; /* Desktop app feel */
+      }
+      .font-serif {
+        font-family: 'Manrope', sans-serif !important;
+      }
+      body, button, input, textarea, select {
+        font-family: 'Manrope', sans-serif;
+      }
+      .font-sans {
+        font-family: 'Manrope', sans-serif !important;
+      }
+      .hero-heading {
+        font-family: 'Manrope', sans-serif !important;
+        font-weight: 200 !important;
+      }
+      /* Custom Scrollbar for macOS feel */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #e5e5e5;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #d4d4d4;
+      }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <!-- index.tsx renders FirstPaintShell for the initial home skeleton to avoid a blank startup window. -->
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
