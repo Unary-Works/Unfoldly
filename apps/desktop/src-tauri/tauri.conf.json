@@ -42,7 +42,8 @@
     "createUpdaterArtifacts": true,
     "resources": [],
     "macOS": {
-      "minimumSystemVersion": "10.15"
+      "minimumSystemVersion": "10.15",
+      "entitlements": "entitlements.plist"
     },
     "icon": [
       "icons/32x32.png",
@@ -54,7 +55,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENGMDRBQjhDQkY1OTQxRjYKUldUMlFWbS9qS3NFejEySE9NM01ZUklYODM0dlk1c3FqVmsyc3BicEsvSlhhTmtMV3NoaGNVby8K",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDMzQkE2OTlFMTExQUQ5QTkKUldTcDJSb1JubW02TXpMS1VtZG9KVHBhY3pYeXdwZFFCYnY0Qll0QkdNajBURTBMb1VBRURWVzEK",
       "endpoints": [
         "https://github.com/Unary-Works/Unfoldly/releases/latest/download/latest.json"
       ]

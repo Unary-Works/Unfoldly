@@ -109,6 +109,33 @@ case "$DMG_FORMAT" in
 esac
 DMG_LAYOUT_RESULT="not requested"
 
+# Developer ID signing + notarization configuration.
+# When UNFOLDLY_SIGNING_IDENTITY is set, nested binaries and the .app are signed
+# with that identity using hardened runtime + secure timestamp + entitlements,
+# producing a build eligible for Apple notarization. When unset, the legacy
+# ad-hoc signing path (codesign -s -) is preserved for local dev iterations.
+SIGNING_IDENTITY="${UNFOLDLY_SIGNING_IDENTITY:-}"
+NOTARY_PROFILE="${UNFOLDLY_NOTARY_PROFILE:-}"
+ENTITLEMENTS_FILE="${UNFOLDLY_ENTITLEMENTS_FILE:-$FRONTEND_DIR/src-tauri/entitlements.plist}"
+NOTARIZE_APP=false
+NOTARIZE_DMG=false
+if [[ -n "$SIGNING_IDENTITY" && -n "$NOTARY_PROFILE" ]]; then
+  NOTARIZE_APP=true
+  NOTARIZE_DMG=true
+fi
+if [[ -n "$SIGNING_IDENTITY" ]]; then
+  echo "[package_tauri] Developer ID signing enabled: $SIGNING_IDENTITY"
+  if [[ ! -f "$ENTITLEMENTS_FILE" ]]; then
+    echo "[package_tauri] ERROR: entitlements file not found: $ENTITLEMENTS_FILE"
+    exit 1
+  fi
+  if [[ "$NOTARIZE_APP" == "true" ]]; then
+    echo "[package_tauri] Notarization enabled with keychain profile: $NOTARY_PROFILE"
+  else
+    echo "[package_tauri] WARN: UNFOLDLY_NOTARY_PROFILE not set; signing only, no notarization."
+  fi
+fi
+
 create_arrow_background_png() {
   local out_png="$1"
   local final_bg_source="$SCRIPT_DIR/../assets/dmg_background_final.png"
@@ -769,9 +796,16 @@ for path in app.rglob("*"):
         changed += 1
 
 needles = []
-for private_value in (repo, home, build_user, home_name, repo_name):
+for private_value in (repo, home, build_user, home_name):
     if private_value and len(private_value) >= 3 and private_value not in {b"root", b"home"}:
         needles.append(private_value)
+# repo_name is intentionally excluded by default: for projects where the repo
+# directory basename equals the public product name (e.g. "Unfoldly"), the name
+# legitimately appears throughout the bundle (Info.plist, NOTICE, dist-info,
+# source) and is not a privacy leak. Opt in via UNFOLDLY_PRIVACY_STRICT_REPO_NAME=1.
+if os.environ.get("UNFOLDLY_PRIVACY_STRICT_REPO_NAME") == "1":
+    if repo_name and len(repo_name) >= 3 and repo_name not in {b"root", b"home"}:
+        needles.append(repo_name)
 for raw in os.environ.get("UNFOLDLY_PRIVACY_EXTRA_NEEDLES", "").replace(",", "\n").splitlines():
     value = raw.strip().encode()
     if value:
@@ -832,7 +866,14 @@ sign_macho_binaries() {
     return 0
   fi
 
-  echo "[package_tauri] Signing nested Mach-O binaries..."
+  local identity="${SIGNING_IDENTITY:-}"
+  local ent_file="${ENTITLEMENTS_FILE:-}"
+
+  if [[ -n "$identity" ]]; then
+    echo "[package_tauri] Signing nested Mach-O binaries with Developer ID..."
+  else
+    echo "[package_tauri] Signing nested Mach-O binaries (ad-hoc)..."
+  fi
   local signed=0
   local skipped=0
   while IFS= read -r -d '' candidate; do
@@ -842,18 +883,74 @@ sign_macho_binaries() {
       continue
     fi
     chmod u+w "$candidate" 2>/dev/null || true
-    if codesign --force --sign - "$candidate" >/dev/null 2>&1; then
+
+    local cs_args=(--force)
+    if [[ -n "$identity" ]]; then
+      cs_args+=(--options runtime --timestamp)
+      # Entitlements attach to executables; dylib/bundle reject --entitlements.
+      if [[ "$kind" == *"executable"* && -f "$ent_file" ]]; then
+        cs_args+=(--entitlements "$ent_file")
+      fi
+      cs_args+=(--sign "$identity")
+    else
+      cs_args+=(--sign -)
+    fi
+
+    if codesign "${cs_args[@]}" "$candidate" >/dev/null 2>&1; then
       signed=$((signed + 1))
     else
+      echo "[package_tauri] codesign FAILED for: $candidate"
+      codesign "${cs_args[@]}" "$candidate" 2>&1 | sed "s#$ROOT_DIR#<repo>#g" | head -5 || true
       skipped=$((skipped + 1))
     fi
-  done < <(find "$app_path" -type f \( -path "*/Contents/MacOS/*" -o -name "*.so" -o -name "*.dylib" \) -print0)
+  done < <(find "$app_path" -type f \( \
+      -path "*/Contents/MacOS/*" -o \
+      -name "*.so" -o \
+      -name "*.dylib" -o \
+      -path "*/Contents/Resources/python_runtime/install/bin/*" -o \
+      -path "*/Contents/Resources/ffmpeg/bin/*" \
+    \) -print0)
 
   echo "[package_tauri] Signed nested Mach-O binaries: signed=$signed, skipped=$skipped"
   if [[ "$skipped" -gt 0 ]]; then
     echo "[package_tauri] ERROR: failed to sign one or more nested Mach-O binaries"
     exit 1
   fi
+}
+
+notarize_and_staple() {
+  local target="$1"
+  local label="$2"
+
+  if [[ -z "${NOTARY_PROFILE:-}" ]]; then
+    return 0
+  fi
+
+  local submit_path="$target"
+  local cleanup_zip=""
+  if [[ -d "$target" ]]; then
+    submit_path="$(mktemp -t unfoldly-notarize-XXXXXX).zip"
+    cleanup_zip="$submit_path"
+    /usr/bin/ditto -c -k --keepParent "$target" "$submit_path"
+  fi
+
+  echo "[package_tauri] Submitting $label for notarization: $submit_path"
+  echo "[package_tauri] (this typically takes 1-10 minutes; --wait blocks until Apple responds)"
+  if ! xcrun notarytool submit "$submit_path" \
+        --keychain-profile "$NOTARY_PROFILE" \
+        --wait; then
+    echo "[package_tauri] ERROR: notarization failed for $label"
+    [[ -n "$cleanup_zip" ]] && rm -f "$cleanup_zip"
+    exit 1
+  fi
+  [[ -n "$cleanup_zip" ]] && rm -f "$cleanup_zip"
+
+  echo "[package_tauri] Stapling notarization ticket to $label..."
+  if ! xcrun stapler staple "$target"; then
+    echo "[package_tauri] ERROR: stapler failed for $label: $target"
+    exit 1
+  fi
+  xcrun stapler validate "$target" || true
 }
 
 validate_ffmpeg_bundle() {
@@ -1105,10 +1202,21 @@ mkdir -p "$RELEASE_DIR"
 if [[ -d "$BUNDLE_DIR" ]]; then
   for app in "$BUNDLE_DIR"/macos/*.app "$BUNDLE_DIR"/*.app; do
     if [[ -d "$app" ]]; then
-      echo "[package_tauri] Applying ad-hoc signature to .app: $app"
-      sign_macho_binaries "$app"
-      codesign --force --deep -s - "$app" || true
-      
+      if [[ -n "$SIGNING_IDENTITY" ]]; then
+        echo "[package_tauri] Signing .app with Developer ID: $SIGNING_IDENTITY"
+        sign_macho_binaries "$app"
+        codesign --force --options runtime --timestamp \
+          --entitlements "$ENTITLEMENTS_FILE" \
+          --sign "$SIGNING_IDENTITY" "$app"
+        if [[ "$NOTARIZE_APP" == "true" ]]; then
+          notarize_and_staple "$app" ".app bundle"
+        fi
+      else
+        echo "[package_tauri] Applying ad-hoc signature to .app: $app"
+        sign_macho_binaries "$app"
+        codesign --force --deep -s - "$app" || true
+      fi
+
       APP_NAME=$(basename "$app")
       rm -rf "$RELEASE_DIR/$APP_NAME"
       cp -R "$app" "$RELEASE_DIR/"
@@ -1227,6 +1335,20 @@ if [[ -d "$BUNDLE_DIR" ]]; then
           echo "  UNFOLDLY_FORCE_REBUILD_SITE=1 bash macos_bundle/scripts/package_tauri.sh ${TARGET_ARCH:-}"
           echo "  Or for layout verification only: UNFOLDLY_MAX_DMG_MB=0 bash macos_bundle/scripts/package_tauri.sh ${TARGET_ARCH:-}"
           exit 1
+        fi
+
+        if [[ -n "$SIGNING_IDENTITY" ]]; then
+          echo "[package_tauri] Signing DMG with Developer ID..."
+          codesign --force --timestamp --sign "$SIGNING_IDENTITY" "$RELEASE_DIR/$DMG_NAME"
+          if [[ "$NOTARIZE_DMG" == "true" ]]; then
+            notarize_and_staple "$RELEASE_DIR/$DMG_NAME" "DMG"
+            echo "[package_tauri] Final Gatekeeper assessment on DMG..."
+            if spctl --assess --type open --context context:primary-signature --verbose=4 "$RELEASE_DIR/$DMG_NAME" 2>&1; then
+              echo "[package_tauri] Gatekeeper: DMG accepted"
+            else
+              echo "[package_tauri] WARN: spctl assessment did not return accepted; check output above"
+            fi
+          fi
         fi
       fi
       echo "  Generated DMG at: $RELEASE_DIR/$DMG_NAME"

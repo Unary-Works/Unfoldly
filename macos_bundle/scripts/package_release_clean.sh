@@ -55,9 +55,13 @@ repo_name = os.path.basename(os.path.abspath(sys.argv[2])).encode()
 home_name = os.path.basename(os.path.abspath(sys.argv[3])).encode()
 needles = [
     value
-    for value in (repo, home, build_user, repo_name, home_name)
+    for value in (repo, home, build_user, home_name)
     if value and len(value) >= 3 and value not in {b"root", b"home"}
 ]
+# repo_name omitted by default for product-name == repo-name projects; opt in via env.
+if os.environ.get("UNFOLDLY_PRIVACY_STRICT_REPO_NAME") == "1":
+    if repo_name and len(repo_name) >= 3 and repo_name not in {b"root", b"home"}:
+        needles.append(repo_name)
 for path in root.rglob("*"):
     if not path.is_file():
         continue
@@ -135,9 +139,13 @@ repo_name = os.path.basename(os.path.abspath(sys.argv[3])).encode()
 home_name = os.path.basename(os.path.abspath(sys.argv[4])).encode()
 
 needles = []
-for private_value in (repo, home, build_user, home_name, repo_name):
+for private_value in (repo, home, build_user, home_name):
     if private_value and len(private_value) >= 3 and private_value not in {b"root", b"home"}:
         needles.append(private_value)
+# repo_name omitted by default; opt in via UNFOLDLY_PRIVACY_STRICT_REPO_NAME=1.
+if os.environ.get("UNFOLDLY_PRIVACY_STRICT_REPO_NAME") == "1":
+    if repo_name and len(repo_name) >= 3 and repo_name not in {b"root", b"home"}:
+        needles.append(repo_name)
 for raw in extra_needles.replace(",", "\n").splitlines():
     value = raw.strip().encode()
     if value:
