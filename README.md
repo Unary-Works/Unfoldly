@@ -12,17 +12,21 @@
   <img alt="Status: beta" src="https://img.shields.io/badge/status-beta-orange">
 </p>
 
-**Local AI search for the files you can't find.**
+**Find any file, even when you forgot its name.**
 
-Search by memory, meaning, and visual content across documents, photos, videos, spreadsheets, and more - without uploading your files.
+Unfoldly is built for the messy folders we all have: Documents, Downloads, Desktop, old hard drives, and random project folders filled with videos, images, audio files, PDFs, screenshots, and notes you no longer remember how to search for.
 
-Search for:
+Instead of typing exact file names, just describe what you are looking for:
 
-- "the photo of my dog on the beach"
-- "the video where I saw a manta ray"
-- "the spreadsheet that explains why my trip went over budget"
+- "Find images of my dog."
+- "Show me the video where I presented the demo."
+- "Find the audio recording from the investor meeting."
+- "Show me screenshots about Stripe setup."
+- "Find the PDF that mentioned pricing strategy."
 
-Unfoldly finds the relevant local file, shows the source, and lets you ask follow-up questions in context.
+Unfoldly indexes your local files and lets you search them by meaning, not just by filename or folder path. Once you find the right files, you can keep asking follow-up questions: summarize a document, ask about a video or audio file, compare notes, extract key points, or chat with a folder.
+
+Everything runs locally. No account required. Your files stay on your device.
 
 <p align="center">
   <a href="https://www.unfoldly.io/">Website</a> |
@@ -34,29 +38,11 @@ Unfoldly finds the relevant local file, shows the source, and lets you ask follo
   <a href="docs/zh/README.md">中文</a>
 </p>
 
-> **Early beta:** The current public release is macOS-only. A signed and notarized build is planned.
-
-## Why Unfoldly
-
-Traditional file search works when you remember the filename, folder, or exact keyword.
-
-But most of the time, you remember something else:
-
-- what was inside a photo
-- what happened in a video
-- what a document was about
-- what a spreadsheet explained
-- where you saw an idea, chart, quote, number, or screenshot
-
-Unfoldly is built for that gap between what you remember and where the file actually lives.
-
-Think of it as an AI-native Everything for personal files: local-first like desktop search, but searchable by meaning, context, and visual memory.
+> **Early beta:** The current public release is macOS-only and distributed as a signed, notarized macOS build.
 
 ## Product Overview
 
-Unfoldly turns selected files and folders into a private, searchable memory layer on your computer.
-
-The workflow is simple:
+Unfoldly turns the files and folders you choose into a private, searchable memory layer on your computer.
 
 1. **Choose your sources**  
    Add the folders or files you want Unfoldly to index.
@@ -65,9 +51,9 @@ The workflow is simple:
    Unfoldly processes your files locally, extracting text, visual signals, metadata, transcripts, and searchable embeddings depending on the file type.
 
 3. **Search and ask**  
-   Use natural language to find relevant files, inspect the source, narrow the search scope, or ask follow-up questions in context.
+   Describe what you are looking for, inspect the source files Unfoldly finds, then ask follow-up questions in context.
 
-The whole experience is designed to run locally. Your files, indexes, downloaded models, preferences, logs, and chat history stay on your machine.
+Indexes, downloaded models, preferences, logs, and chat history are stored in the local app data directory.
 
 ## Demos
 
@@ -142,7 +128,7 @@ Unfoldly may connect to the internet to download model files or application rele
 
 [Download Now](https://www.unfoldly.io/)
 
-The current public build is focused on macOS.
+The current public build is focused on macOS and is distributed as a signed, notarized macOS app.
 
 ## Quick Start
 
@@ -152,18 +138,6 @@ The current public build is focused on macOS.
 4. Wait for indexing to complete.
 5. Search by memory, meaning, or visual content.
 6. Open the source file or ask a follow-up question.
-
-## macOS Security Notice
-
-The current beta build is not notarized.
-
-If macOS says it cannot verify Unfoldly:
-
-1. Try opening `Unfoldly.app` once.
-2. Open **System Settings > Privacy & Security**.
-3. Scroll down to the **Security** section.
-4. Click **Open Anyway** next to the Unfoldly warning.
-5. Launch Unfoldly again.
 
 ## Uninstall
 

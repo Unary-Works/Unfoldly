@@ -227,7 +227,7 @@ bash scripts/uninstall-mac.sh
 
 查看 `~/Library/Logs/Unfoldly/`：
 
-- **缺少 `startup.log`**：可能是 macOS `dyld` 无法定位内部 Python framework，或 Gatekeeper 阻止未签名应用。
+- **缺少 `startup.log`**：可能是 macOS `dyld` 无法定位内部 Python framework，或 Gatekeeper 阻止本地临时签名开发构建。
 - **终端中出现 `dyld: Library not loaded`**：删除损坏的 runtime 缓存后重新完整构建。
 
 ```bash
@@ -235,9 +235,9 @@ rm -rf macos_bundle/python_runtime
 bash macos_bundle/scripts/package_tauri.sh
 ```
 
-### 2. Gatekeeper 阻止打开应用
+### 2. Gatekeeper 阻止打开本地开发构建
 
-确认系统版本不低于 macOS 10.15。如果是本地未公证构建，可移除 quarantine 属性：
+确认系统版本不低于 macOS 10.15。如果是本地未公证开发构建，可移除 quarantine 属性：
 
 ```bash
 xattr -cr /Applications/Unfoldly.app

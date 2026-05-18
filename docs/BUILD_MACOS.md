@@ -232,13 +232,13 @@ indexing.
 
 ### 1. The App Crashes Immediately on Launch
 Check Unfoldly's local logs located at `~/Library/Logs/Unfoldly/`.
-- **`startup.log` is missing**: The macOS `dyld` linker is failing to locate the internal Python framework, or Gatekeeper is blocking the unsigned binary.
+- **`startup.log` is missing**: The macOS `dyld` linker is failing to locate the internal Python framework, or Gatekeeper is blocking a local ad-hoc development build.
 - **`dyld: Library not loaded` error when running via Terminal**: Run a clean rebuild using `rm -rf macos_bundle/python_runtime` and running the clean build step.
 
-### 2. "App cannot be opened because of a problem" (Gatekeeper & Deployment Target)
-macOS deployment targets and ad-hoc signatures can cause the application to be blocked on unfamiliar Macs.
+### 2. "App cannot be opened because of a problem" (Local Development Builds)
+macOS deployment targets and ad-hoc signatures can cause locally built apps to be blocked on unfamiliar Macs.
 - Verify that your system is running macOS 10.15 (Catalina) or higher.
-- Strip Apple's quarantine attributes if Gatekeeper blocks the unnotarized application:
+- Strip Apple's quarantine attributes if Gatekeeper blocks a local, unnotarized development build:
   ```bash
   xattr -cr /Applications/Unfoldly.app
   ```

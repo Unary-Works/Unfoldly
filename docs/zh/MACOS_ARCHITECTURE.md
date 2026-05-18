@@ -52,5 +52,5 @@ Unfoldly/
 如果新打包的应用启动后立即退出：
 
 1. 查看 `~/Library/Logs/Unfoldly/` 下的日志。
-2. 如果没有 `startup.log`，通常是内部 Python framework 的动态链接路径没有正确配置，或未签名应用被 Gatekeeper 阻止。
+2. 如果没有 `startup.log`，通常是内部 Python framework 的动态链接路径没有正确配置，或本地临时签名开发构建被 Gatekeeper 阻止。
 3. 如果 `crash.log` 中包含 `UnicodeEncodeError`，通常是 Finder 启动时缺少 UTF-8 locale。请确认打包启动逻辑设置了 `PYTHONUTF8=1` 和 `LC_ALL=en_US.UTF-8`。
