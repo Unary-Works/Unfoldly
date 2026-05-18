@@ -135,8 +135,8 @@ ls -lh "$APP" "$DMG" \
 
 echo ""
 echo "[sign-release] Independent verification:"
-spctl_app="$(spctl --assess --type execute "$APP" 2>&1 || true)"
-spctl_dmg="$(spctl --assess --type open --context context:primary-signature "$DMG" 2>&1 || true)"
+spctl_app="$(spctl --assess --type execute --verbose=4 "$APP" 2>&1 || true)"
+spctl_dmg="$(spctl --assess --type open --context context:primary-signature --verbose=4 "$DMG" 2>&1 || true)"
 staple_app="$(xcrun stapler validate "$APP" 2>&1 | tail -1)"
 staple_dmg="$(xcrun stapler validate "$DMG" 2>&1 | tail -1)"
 sha="$(shasum -a 256 "$DMG" | awk '{print $1}')"
