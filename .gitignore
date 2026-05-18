@@ -55,6 +55,14 @@ index_ignore_cache.json
 parse_cache.db
 **/parse_cache.db
 
+# Signing material (private keys, certs, CSR) — must NEVER be committed
+signing/
+*.key
+*.p12
+*.csr
+*.cer
+*.mobileprovision
+
 # Tauri build artifacts
 apps/desktop/src-tauri/target/
 .dummy_pkgs/
